@@ -1,6 +1,8 @@
 from fastapi import FastAPI
+import json 
 import sqlite3
 from datetime import datetime, timedelta
+import pandas as pd
 
 app = FastAPI()
 conn = sqlite3.connect("calliper.db")
@@ -32,3 +34,16 @@ def init_db():
 async def init():
     init_db()
     return True
+
+@app.get("/items")
+async def items():
+    sql = pd.read_sql_query("SELECT * FROM items",conn)
+    return sql.to_dict('records')
+
+@app.get("/item/{item_id}/comments")
+async def item_comments(item_id: str):
+    with open('storage.json') as f:
+        data = json.load(f)
+        print(data)
+        idx = data.index(lambda p: p['id'] == int(item_id))
+        return data[idx]['comments'] 
