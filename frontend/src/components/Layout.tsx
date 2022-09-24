@@ -9,11 +9,11 @@ const navigation = ["Dashboard"];
 const Layout: React.FC = ({ children }) => {
   const history = useHistory();
   return (
-    <div>
+    <div className="bg-gray-200 h-screen">
       <Disclosure as="nav" className="bg-black">
         {({ open }) => (
           <>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex items-center justify-between h-16">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">

@@ -5,6 +5,7 @@ import axios from "axios";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { BrowserRouter, HashRouter, Route, Switch } from "react-router-dom";
 import Layout from "./components/Layout";
+import Landing from "./view/Landing";
 const queryClient = new QueryClient();
 
 axios.interceptors.response.use((response) => response.data);
@@ -23,7 +24,7 @@ ReactDOM.render(
       <Router>
         <Layout>
           <Switch>
-            <Route component={() => <div>Hey</div>} path="/" />
+            <Route component={Landing} path="/" />
           </Switch>
         </Layout>
       </Router>
