@@ -1,15 +1,23 @@
-import axios from "axios";
 import React from "react";
+import { useQuery } from "react-query";
+import { init, items } from "../api";
+import Button from "../components/Button";
 import LineChart from "../components/LineChart";
 
 const Landing = () => {
+  const { data } = useQuery(["items"], items);
+
   return (
     <>
       <div className="overflow-hidden bg-white shadow sm:rounded-lg m-4">
         <div className="px-4 py-5 sm:px-6">
           <h3 className="text-lg font-medium leading-6 text-gray-900">Tools</h3>
         </div>
-        <div className="border-t border-gray-300 py-6 px-11"></div>
+        <div className="border-t border-gray-300 py-6 px-6">
+          <Button onClick={init} disabled={!!data?.length}>
+            Initialize database
+          </Button>
+        </div>
       </div>
       <div className="overflow-hidden bg-white shadow sm:rounded-lg m-4">
         <div className="px-4 py-5 sm:px-6">
@@ -21,7 +29,14 @@ const Landing = () => {
           </p>
         </div>
         <div className="border-t border-gray-300 py-6 px-11">
-          <LineChart data={[{ date: Date.now().toString(), value: 10 }]} />
+          <LineChart
+            data={
+              data?.map((d) => ({
+                ...d,
+                date: new Date(d.date).getTime(),
+              })) ?? []
+            }
+          />
         </div>
       </div>
     </>

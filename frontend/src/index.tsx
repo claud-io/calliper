@@ -17,7 +17,6 @@ const Router: React.FC = ({ children }) => {
     return <BrowserRouter>{children}</BrowserRouter>;
   }
 };
-
 ReactDOM.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
