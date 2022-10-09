@@ -2,11 +2,16 @@ import React from "react";
 import { useQuery } from "react-query";
 import { init, items } from "../api";
 import Button from "../components/Button";
+import CommentsBlade from "../components/CommentsBlade";
 import LineChart from "../components/LineChart";
 
 const Landing = () => {
+  const [currentItemId, setCurrentItemId] = React.useState<
+    number | undefined
+  >();
   const { data } = useQuery(["items"], items);
 
+  const handleItemClick = (itemId?: number) => setCurrentItemId(itemId);
   return (
     <>
       <div className="overflow-hidden bg-white shadow sm:rounded-lg m-4">
@@ -30,6 +35,7 @@ const Landing = () => {
         </div>
         <div className="border-t border-gray-300 py-6 px-11">
           <LineChart
+            onItemClick={handleItemClick}
             data={
               data?.map((d) => ({
                 ...d,
@@ -39,6 +45,7 @@ const Landing = () => {
           />
         </div>
       </div>
+      <CommentsBlade itemId={currentItemId} />
     </>
   );
 };
