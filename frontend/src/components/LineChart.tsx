@@ -8,7 +8,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  DotProps,
 } from "recharts";
 import dayjs from "dayjs";
 import { Item } from "../types";

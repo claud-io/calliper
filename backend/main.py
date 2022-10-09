@@ -28,7 +28,7 @@ conn = sqlite3.connect("calliper.db")
 
  
 def item_generator():
-    for idx in range(10):
+    for idx in range(30):
         yield datetime.now() + timedelta(days=idx, hours=-idx), random()*100
 
 def init_db():
@@ -64,7 +64,7 @@ async def items():
                                      GROUP BY i.id, i.date, i.value''',conn)
         return sql.to_dict('records')
     except:
-        return JSONResponse( status_code=500 )
+        return JSONResponse( status_code=500, content={"message": f"An error occurred."} )
 
 
 @app.get("/items/{item_id}/comments")
@@ -74,7 +74,7 @@ async def item_comments(item_id: str):
                                     FROM Comments where item_id = (?)''',conn, params=(item_id,))
         return sql.to_dict('records')
     except:
-        return JSONResponse( status_code=500 )
+        return JSONResponse( status_code=500, content={"message": f"An error occurred."}  )
 
 
 @app.put("/items/{item_id}/comments/add")
@@ -88,5 +88,5 @@ async def add_item_comment(item_id: str, comment: Comment):
         cur.execute(db_query, (item_id, comment.username, comment.description, comment.date))
         conn.commit()
     except:
-        return JSONResponse( status_code=500 )
+        return JSONResponse( status_code=500, content={"message": f"An error occurred."} )
 
