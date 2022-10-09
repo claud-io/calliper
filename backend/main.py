@@ -1,12 +1,16 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from random import random
-from random import seed
-import json 
 import sqlite3
 from datetime import datetime, timedelta
 import pandas as pd
+from pydantic import BaseModel
+
+class Comment(BaseModel):
+    username: str
+    description: str
+    date: datetime
 
 app = FastAPI()
 
@@ -22,28 +26,25 @@ app.add_middleware(
 
 conn = sqlite3.connect("calliper.db")
 
-def char_generator():
-    now = datetime.today()
+ 
+def item_generator():
     for idx in range(10):
-        seed(idx)
-        yield idx, datetime.now() + timedelta(days=idx, hours=-idx), random()*100
+        yield datetime.now() + timedelta(days=idx, hours=-idx), random()*100
 
 def init_db():
-    c = conn.cursor()
-    c.execute('CREATE TABLE IF NOT EXISTS items (id integer primary key, date text, value integer )')     
-    c.execute('''
+    cur = conn.cursor()
+    cur.execute('CREATE TABLE IF NOT EXISTS items (id integer primary key AUTOINCREMENT, date text, value integer )')     
+    cur.execute('''
         CREATE TABLE IF NOT EXISTS comments (
-            id integer primary key,  
+            id integer primary key AUTOINCREMENT,  
             item_id TEXT,
-            title TEXT, 
             description TEXT, 
-            author TEXT, 
+            username TEXT, 
             date TEXT,
             FOREIGN KEY(item_id) REFERENCES items(id))
         ''')     
-    c.executemany("insert into items(id, date, value) values (?, ? ,?)", char_generator())          
+    cur.executemany("insert into items(date, value) values (? ,?)", item_generator())          
     conn.commit()
-    print('commit')
 
 @app.get("/init")
 async def init():
@@ -63,13 +64,29 @@ async def items():
                                      GROUP BY i.id, i.date, i.value''',conn)
         return sql.to_dict('records')
     except:
-        return { items: [] }
+        return JSONResponse( status_code=500 )
 
 
-@app.get("/item/{item_id}/comments")
+@app.get("/items/{item_id}/comments")
 async def item_comments(item_id: str):
-    with open('storage.json') as f:
-        data = json.load(f)
-        print(data)
-        idx = data.index(lambda p: p['id'] == int(item_id))
-        return data[idx]['comments'] 
+    try:
+        sql = pd.read_sql_query('''SELECT id, description, username, date
+                                    FROM Comments where item_id = (?)''',conn, params=(item_id,))
+        return sql.to_dict('records')
+    except:
+        return JSONResponse( status_code=500 )
+
+
+@app.put("/items/{item_id}/comments/add")
+async def add_item_comment(item_id: str, comment: Comment):
+    try:   
+        cur = conn.cursor()
+
+        db_query = """INSERT INTO comments (item_id, username, description, date) 
+                    VALUES (:item_id, :username, :description, :date)"""
+
+        cur.execute(db_query, (item_id, comment.username, comment.description, comment.date))
+        conn.commit()
+    except:
+        return JSONResponse( status_code=500 )
+
